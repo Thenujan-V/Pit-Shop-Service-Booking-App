@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class TokenProvider implements Serializable {
 
     private final ApplicationConfigProperties applicationProperties;
@@ -84,6 +85,7 @@ public class TokenProvider implements Serializable {
 
     // Validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
+        log.info("ok");
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
