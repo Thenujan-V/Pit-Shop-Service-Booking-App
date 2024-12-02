@@ -6,10 +6,14 @@ import com.example.booking.Enum.Status;
 import com.example.booking.Exception.ConflictException;
 import com.example.booking.Repository.BookingRepository;
 import com.example.booking.Services.Service.BookingService;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
+@AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
     @Autowired
     private BookingRepository bookingRepository;

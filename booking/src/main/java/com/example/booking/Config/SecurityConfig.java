@@ -27,7 +27,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/booking/create-booking").permitAll()
-                                .requestMatchers("/api/v1/booking/register-vehicle").permitAll()
+                                .requestMatchers("/api/v1/vehicle/register-vehicle").permitAll()
+                                .requestMatchers("/api/v1/vehicle/get-vehicle-details/{userId}").permitAll()
+                                .requestMatchers("/api/v1/vehicle/edit-vehicle-details/{vehicle_id}").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

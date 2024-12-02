@@ -1,6 +1,8 @@
 package com.example.booking.Controller;
 
 import com.example.booking.Config.Security.TokenProvider;
+import com.example.booking.Dto.Response.VehicleGetDto;
+import com.example.booking.Dto.VehicleDetailsEditDto;
 import com.example.booking.Dto.VehicleDto;
 import com.example.booking.Entity.BookingEntity;
 import com.example.booking.Entity.VehicleEntity;
@@ -10,14 +12,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/booking")
+@RequestMapping("/api/v1/vehicle")
 public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
@@ -46,4 +51,61 @@ public class VehicleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/get-vehicle-details/{userId}")
+    private ResponseEntity<List<VehicleEntity>> getVehicleDetails(@PathVariable("userId") Integer userId){
+        System.out.println("user id : "+userId);
+        List<VehicleEntity> userVehicleDetails = vehicleService.getUserVehicleDetails(userId);
+        return ResponseEntity.ok(userVehicleDetails);
+    }
+
+    @PutMapping("/edit-vehicle-details/{vehicle_id}")
+    private ResponseEntity<?> editVehicleDetails(@RequestHeader("Authorization") String token, @PathVariable("vehicle_id") String vehicleId, VehicleDetailsEditDto vehicleDetailsEditDto){
+        if(token == null || !token.startsWith(TOKEN_PREFIX)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing authorization token");
+        }
+        String authToken = token.replace(TOKEN_PREFIX + " ", "");
+
+        try{
+            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
+            System.out.println("vehicle id : "+userId);
+
+            if(userId != null){
+                System.out.println("test 3");
+                VehicleEntity updatedEntity = vehicleService.updateVehicleDetails(userId, vehicleId, vehicleDetailsEditDto);
+                System.out.println("test 4");
+
+                return ResponseEntity.ok(updatedEntity);
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID could not be retrieved from the token");
+            }
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("null");
+        }
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
