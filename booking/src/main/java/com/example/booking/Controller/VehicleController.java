@@ -60,7 +60,7 @@ public class VehicleController {
     }
 
     @PutMapping("/edit-vehicle-details/{vehicle_id}")
-    private ResponseEntity<?> editVehicleDetails(@RequestHeader("Authorization") String token, @PathVariable("vehicle_id") String vehicleId, VehicleDetailsEditDto vehicleDetailsEditDto){
+    private ResponseEntity<?> editVehicleDetails(@RequestHeader("Authorization") String token, @PathVariable("vehicle_id") String vehicleId,@RequestBody VehicleDetailsEditDto vehicleDetailsEditDto){
         if(token == null || !token.startsWith(TOKEN_PREFIX)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing authorization token");
         }
@@ -83,7 +83,18 @@ public class VehicleController {
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("null");
         }
+    }
 
+    @GetMapping("/get-all-vehicles")
+    private ResponseEntity<List<VehicleEntity>> getAllVehicleDetails(){
+        List<VehicleEntity> allVehicles = vehicleService.getVehicledetails();
+        return ResponseEntity.ok(allVehicles);
+    }
+
+    @DeleteMapping("/delete-vehicle/{vehicle_id}")
+    private ResponseEntity<?> deleteVehicles(@RequestHeader("Authorization") String token, @PathVariable("vehicle_id") String vehicle_id){
+        ResponseEntity<?> deletedVehicle = vehicleService.deleteVehicleDetails(vehicle_id);
+        return ResponseEntity.ok(deletedVehicle);
     }
 }
 

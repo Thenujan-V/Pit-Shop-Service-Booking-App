@@ -29,6 +29,9 @@ public class VehicleEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "fuel_type", nullable = false)
     private FuelType fuelType;
+
+    @Column(name = "vehicle_is_active", nullable = false)
+    private Boolean vehicleIsActive = true;
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private Date created_at;

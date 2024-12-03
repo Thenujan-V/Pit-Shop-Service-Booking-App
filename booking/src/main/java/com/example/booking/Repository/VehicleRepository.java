@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface VehicleRepository extends JpaRepository<VehicleEntity, String> {
     @Query("SELECT v FROM VehicleEntity v WHERE v.userId = :userId")
     List<VehicleEntity> findVehicleDetails(@Param("userId") Integer userId);
+
 //    @Query("SELECT v FROM VehicleEntity v WHERE v.vehicleId = :vehicleNo")
 //    Optional<VehicleEntity> findDetails(@Param("vehicleNo") String vehicleNo);
 }

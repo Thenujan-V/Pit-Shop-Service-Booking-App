@@ -3,6 +3,7 @@ package com.example.booking.Services.ServiceImpl;
 import com.example.booking.Dto.VehicleDetailsEditDto;
 import com.example.booking.Dto.VehicleDto;
 import com.example.booking.Entity.VehicleEntity;
+import com.example.booking.Enum.FuelType;
 import com.example.booking.Exception.ConflictException;
 import com.example.booking.Repository.VehicleRepository;
 import com.example.booking.Services.Service.VehicleService;
@@ -37,7 +38,10 @@ public class VehicleServiceImpl implements VehicleService {
             vehicleEntity.setVehicleModel(vehicleDto.getVehicleModel());
             vehicleEntity.setVehicleType(vehicleDto.getVehicleType());
             vehicleEntity.setServiceType(vehicleDto.getServiceType());
-            vehicleEntity.setFuelType(vehicleDto.getFuelType());
+
+            String fuelTypeString = String.valueOf(vehicleDto.getFuelType());
+            FuelType fuelType = FuelType.valueOf(fuelTypeString.toLowerCase());
+            vehicleEntity.setFuelType(fuelType);
 
             return vehicleRepository.save(vehicleEntity);
 
@@ -77,18 +81,13 @@ public class VehicleServiceImpl implements VehicleService {
         if(vehicleId == null){
             throw new IllegalArgumentException("vehicle id cannot be null");
         }
-        System.out.println("userId: "+userId);
-        System.out.println("vehicle_id: "+vehicleId);
+
 
         try{
-            System.out.println("Test7");
-
             Optional<VehicleEntity> existingVehicle = vehicleRepository.findById(vehicleId.trim());
-//            Optional<VehicleEntity> existingVehicle = vehicleRepository.findDetails(vehicleNo);
-            System.out.println("evvvv: "+existingVehicle);
-
             if(existingVehicle.isPresent()){
-                VehicleEntity vehicleEntity = new VehicleEntity();
+                VehicleEntity vehicleEntity = existingVehicle.get();
+
                 if(vehicleDetailsEditDto.getVehicleBrand() != null){
                     vehicleEntity.setVehicleBrand(vehicleDetailsEditDto.getVehicleBrand());
                 }
@@ -104,18 +103,46 @@ public class VehicleServiceImpl implements VehicleService {
                 if(vehicleDetailsEditDto.getServiceType() != null){
                     vehicleEntity.setServiceType(vehicleDetailsEditDto.getServiceType());
                 }
-                System.out.println("test 1");
                 VehicleEntity updatedVehicleDetails = vehicleRepository.save(vehicleEntity);
-                System.out.println("test 2");
                 return updatedVehicleDetails;
             }
             else{
-                System.out.println("else: ");
-
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "error 1");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
         }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "error2");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<VehicleEntity> getVehicledetails() {
+        try{
+            List<VehicleEntity> allVehiclesDetails = vehicleRepository.findAll();
+            return allVehiclesDetails;
+        }catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"database exception");
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> deleteVehicleDetails(String vehicleId) {
+        try{
+            Optional<VehicleEntity> existingVehicle = vehicleRepository.findById(vehicleId);
+            if(existingVehicle.isPresent()){
+                VehicleEntity deletedVehicle = existingVehicle.get();
+                deletedVehicle.setVehicleIsActive(false);
+                vehicleRepository.save(deletedVehicle);
+                return ResponseEntity.ok("Vehicle deleted successfully.");
+            }
+            else{
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "vehicle not found.");
+            }
+        }catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

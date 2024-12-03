@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
@@ -42,5 +44,11 @@ public class BookingController {
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @GetMapping("/get-all-booking-details")
+    private ResponseEntity<List<BookingEntity>> getAllBookingDetails(){
+        List<BookingEntity> bookingSlots = bookingService.allBookings();
+        return ResponseEntity.ok(bookingSlots);
     }
 }

@@ -9,7 +9,11 @@ import com.example.booking.Services.Service.BookingService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -40,5 +44,20 @@ public class BookingServiceImpl implements BookingService {
             throw new ConflictException("Database constraint violation", e);
         }
 
+    }
+
+    @Override
+    public List<BookingEntity> allBookings() {
+        try{
+            System.out.println("okey 1");
+            List<BookingEntity> bookingDetails = bookingRepository.findAll();
+
+            if(bookingDetails.isEmpty()){
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "There is no data");
+            }
+            return bookingDetails;
+        }catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
