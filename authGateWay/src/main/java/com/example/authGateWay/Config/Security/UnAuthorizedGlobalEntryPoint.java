@@ -21,6 +21,8 @@ public class UnAuthorizedGlobalEntryPoint implements AuthenticationEntryPoint, S
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.info("UnAuthorizedGlobalEntryPoint {}", authException.toString());
+        System.out.println("UnAuthorizedGlobalEntryPoint {}"+ authException.toString());
+        System.out.println("error");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 

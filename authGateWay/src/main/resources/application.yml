@@ -8,14 +8,14 @@ spring:
     gateway:
       routes:
         # Booking Service APIs
-        - id: booking-service
-          uri: lb://booking-service
+        - id: booking
+          uri: lb://booking
           predicates:
-            - Path=/booking/**
+            - Path=api/v1/booking/**
           filters:
             - RemoveRequestHeader=Authorization
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8899/eureka
+      defaultZone: http://localhost:8899/eureka/

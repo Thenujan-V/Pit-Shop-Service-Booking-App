@@ -31,10 +31,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private ApplicationConfigProperties applicationProperties;
 
-//    @Autowired
-//    @Resource(name = "jwtUserDetailsService")
-//    private UserDetailsService userDetailsService;
-
     @Autowired
     private TokenProvider jwtTokenUtil;
 
@@ -43,6 +39,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String header = req.getHeader(applicationProperties.getJwt().getHeaderString());
         String username = null;
         String authToken = null;
+
+        System.out.println("request : "+req.getRequestURI());
 
         if (header != null && header.startsWith(applicationProperties.getJwt().getTokenPrefix())) {
             authToken = header.replace(applicationProperties.getJwt().getTokenPrefix() + " ", "");
@@ -54,23 +52,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     System.out.println("role and username :"+username+ " " +role);
                     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+                    System.out.println("authorities :"+authorities);
 
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(username, null, authorities);
+                            new UsernamePasswordAuthenticationToken(null, null, authorities);
+
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    System.out.println("authentication : "+authentication);
+                    System.out.println("authentication : "+SecurityContextHolder.getContext().getAuthentication());
                 }
             } catch (IllegalArgumentException e) {
+                System.out.println("IllegalArgumentException");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.username.cannot.retrieve");
                 return;
             } catch (ExpiredJwtException e) {
+                System.out.println("ExpiredJwtException");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.token.expired");
                 return;
             } catch (SignatureException e) {
+                System.out.println("SignatureException");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.signature.invalid");
                 return;
             } catch (Exception e) {
+                System.out.println("Exception");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, e.getMessage());
                 return;
             }
