@@ -1,8 +1,10 @@
 package com.example.booking.Controller;
 
 import com.example.booking.Config.Security.TokenProvider;
+import com.example.booking.Dto.BookingDetailsEditDto;
 import com.example.booking.Dto.BookingDto;
 import com.example.booking.Entity.BookingEntity;
+import com.example.booking.Entity.VehicleEntity;
 import com.example.booking.Services.Service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
@@ -25,7 +29,6 @@ public class BookingController {
     private static final String TOKEN_PREFIX = "Bearer";
     @PostMapping("/create-booking")
     private ResponseEntity<?> createBookings(@RequestHeader("Authorization") String token, @Valid @RequestBody BookingDto bookingDto){
-        System.out.println("token : "+token);
         if (token == null || !token.startsWith(TOKEN_PREFIX)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing authorization token");
         }
@@ -47,8 +50,29 @@ public class BookingController {
     }
 
     @GetMapping("/get-all-booking-details")
-    private ResponseEntity<List<BookingEntity>> getAllBookingDetails(){
-        List<BookingEntity> bookingSlots = bookingService.allBookings();
-        return ResponseEntity.ok(bookingSlots);
+    private ResponseEntity<?> getAllBookingDetails(){
+        try{
+            List<BookingEntity> bookingSlots = bookingService.allBookings();
+            return ResponseEntity.ok(bookingSlots);
+        }catch (ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
     }
+
+    @GetMapping("/get-user-booking/{user_id}")
+    private ResponseEntity<List<BookingEntity>> getBookingsByUserId(@PathVariable("user_id") Integer userId){
+        Optional<List<BookingEntity>> usersBookings = bookingService.getBookingDetails(userId);
+        return ResponseEntity.ok(usersBookings.get());
+    }
+
+    @PutMapping("/edit-bookings/{booking_id}")
+    private ResponseEntity<?> editBookingDetails(@PathVariable("booking_id") Integer bookingId,@RequestBody BookingDetailsEditDto bookingDetailsEditDto){
+        try{
+            BookingEntity updatedDetails = bookingService.updateBookings(bookingId, bookingDetailsEditDto);
+            return ResponseEntity.ok(updatedDetails);
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
+    }
+
 }

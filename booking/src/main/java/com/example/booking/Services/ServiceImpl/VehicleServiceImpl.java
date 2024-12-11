@@ -27,7 +27,8 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public VehicleEntity registerdVehicle(Integer userId, VehicleDto vehicleDto) {
         if(userId == null){
-            throw new IllegalArgumentException("User id cannot be null or empty");
+            System.out.println("ui :"+userId);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,"User id cannot be null or empty");
         }
 
         VehicleEntity vehicleEntity = new VehicleEntity();
@@ -45,6 +46,8 @@ public class VehicleServiceImpl implements VehicleService {
 
             return vehicleRepository.save(vehicleEntity);
 
+        }catch (ResponseStatusException e){
+            throw e;
         }catch(Exception e){
             throw new ConflictException("Database constraint violation", e);
         }
@@ -53,7 +56,6 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public List<VehicleEntity> getUserVehicleDetails(Integer userId) {
         try{
-            System.out.println("user id 2 : "+ vehicleRepository.findVehicleDetails(userId));
             List<VehicleEntity> vehicleDetails = vehicleRepository.findVehicleDetails(userId);
 
             if(vehicleDetails != null){
@@ -65,6 +67,8 @@ public class VehicleServiceImpl implements VehicleService {
                         "No Details. Please try again later."
                 );
             }
+        }catch (ResponseStatusException e){
+            throw e;
         }catch (Exception e){
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -76,10 +80,10 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public VehicleEntity updateVehicleDetails(Integer userId, String vehicleId, VehicleDetailsEditDto vehicleDetailsEditDto) {
         if(userId == null){
-            throw new IllegalArgumentException("user id cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,"User id cannot be null or empty");
         }
         if(vehicleId == null){
-            throw new IllegalArgumentException("vehicle id cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,"User id cannot be null or empty");
         }
 
 
@@ -109,6 +113,8 @@ public class VehicleServiceImpl implements VehicleService {
             else{
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
+        }catch (ResponseStatusException e){
+            throw e;
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -137,8 +143,7 @@ public class VehicleServiceImpl implements VehicleService {
             else{
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "vehicle not found.");
             }
-        }catch (RuntimeException e) {
-            e.printStackTrace();
+        }catch (ResponseStatusException e) {
             throw e;
         }catch(Exception e){
             e.printStackTrace();

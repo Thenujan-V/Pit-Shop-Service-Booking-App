@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleEntity, String> {
-    @Query("SELECT v FROM VehicleEntity v WHERE v.userId = :userId")
+    @Query("SELECT v FROM VehicleEntity v WHERE v.userId = :userId AND v.vehicleIsActive = true")
     List<VehicleEntity> findVehicleDetails(@Param("userId") Integer userId);
 
 //    @Query("SELECT v FROM VehicleEntity v WHERE v.vehicleId = :vehicleNo")

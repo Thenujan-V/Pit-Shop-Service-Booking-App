@@ -1,11 +1,13 @@
 package com.example.booking.Entity;
 
 import com.example.booking.Enum.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -27,11 +29,12 @@ public class BookingEntity {
     private Status status;
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private Date created_at;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
     @CreationTimestamp
-    private Date updated_at;
+    private LocalDateTime updatedAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "vehicle_id", insertable = false, updatable = false)
+    @JsonIgnore
     private VehicleEntity vehicleEntity;
 }

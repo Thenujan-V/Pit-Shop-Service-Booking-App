@@ -27,16 +27,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private ApplicationConfigProperties applicationProperties;
 
-//    @Autowired
-//    @Resource(name = "jwtUserDetailsService")
-//    private UserDetailsService userDetailsService;
 
     @Autowired
     private TokenProvider jwtTokenUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException, ServletException {
-//        logger.info("doFilterInternal");
+        logger.info("doFilterInternal");
         String header = req.getHeader(applicationProperties.getJwt().getHeaderString());
         String username = null;
         String authToken = null;
@@ -47,35 +44,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
             } catch (IllegalArgumentException e) {
-//                logger.error("Error occurred while retrieving Username from Token", e);
+                logger.error("Error occurred while retrieving Username from Token", e);
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.username.cannot.retrieve");
                 return;
             } catch (ExpiredJwtException e) {
-//                logger.warn("The token has expired");
+                logger.warn("The token has expired");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.token.expired");
                 return;
             } catch (SignatureException e) {
-//                logger.error("Authentication Failed. Invalid username or password.");
+                logger.error("Authentication Failed. Invalid username or password.");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.signature.invalid");
                 return;
             } catch (Exception e) {
-//                logger.error("Unknown exception ", e);
+                logger.error("Unknown exception ", e);
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, e.getMessage());
                 return;
             }
         } else {
-//            logger.warn("Bearer string not found, ignoring the header");
+            logger.warn("Bearer string not found, ignoring the header");
         }
 
-//        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-//            if (jwtTokenUtil.validateToken(authToken, userDetails)) {
-//
-//                UsernamePasswordAuthenticationToken authentication = jwtTokenUtil.getAuthenticationToken(authToken, userDetails);
-//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//            }
-//        }
+
 
         chain.doFilter(req, res);
     }

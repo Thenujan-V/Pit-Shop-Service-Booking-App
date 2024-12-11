@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -47,16 +48,18 @@ public class VehicleController {
             else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID could not be retrieved from the token");
             }
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         }
     }
-
     @GetMapping("/get-vehicle-details/{userId}")
-    private ResponseEntity<List<VehicleEntity>> getVehicleDetails(@PathVariable("userId") Integer userId){
-        System.out.println("user id : "+userId);
-        List<VehicleEntity> userVehicleDetails = vehicleService.getUserVehicleDetails(userId);
-        return ResponseEntity.ok(userVehicleDetails);
+    private ResponseEntity<?> getVehicleDetails(@PathVariable("userId") Integer userId){
+        try{
+            List<VehicleEntity> userVehicleDetails = vehicleService.getUserVehicleDetails(userId);
+            return ResponseEntity.ok(userVehicleDetails);
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
     }
 
     @PutMapping("/edit-vehicle-details/{vehicle_id}")
@@ -68,33 +71,37 @@ public class VehicleController {
 
         try{
             Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
-            System.out.println("vehicle id : "+userId);
 
             if(userId != null){
-                System.out.println("test 3");
                 VehicleEntity updatedEntity = vehicleService.updateVehicleDetails(userId, vehicleId, vehicleDetailsEditDto);
-                System.out.println("test 4");
-
                 return ResponseEntity.ok(updatedEntity);
             }
             else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID could not be retrieved from the token");
             }
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("null");
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         }
     }
 
     @GetMapping("/get-all-vehicles")
-    private ResponseEntity<List<VehicleEntity>> getAllVehicleDetails(){
-        List<VehicleEntity> allVehicles = vehicleService.getVehicledetails();
-        return ResponseEntity.ok(allVehicles);
+    private ResponseEntity<?> getAllVehicleDetails(){
+        try{
+            List<VehicleEntity> allVehicles = vehicleService.getVehicledetails();
+            return ResponseEntity.ok(allVehicles);
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
     }
 
     @DeleteMapping("/delete-vehicle/{vehicle_id}")
     private ResponseEntity<?> deleteVehicles(@RequestHeader("Authorization") String token, @PathVariable("vehicle_id") String vehicle_id){
-        ResponseEntity<?> deletedVehicle = vehicleService.deleteVehicleDetails(vehicle_id);
-        return ResponseEntity.ok(deletedVehicle);
+        try{
+            ResponseEntity<?> deletedVehicle = vehicleService.deleteVehicleDetails(vehicle_id);
+            return ResponseEntity.ok(deletedVehicle);
+        }catch(ResponseStatusException e){
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
     }
 }
 

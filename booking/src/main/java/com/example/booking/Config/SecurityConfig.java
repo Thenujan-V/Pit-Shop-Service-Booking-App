@@ -28,6 +28,8 @@ public class SecurityConfig {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/booking/create-booking").permitAll()
                                 .requestMatchers("/api/v1/booking/get-all-booking-details").permitAll()
+                                .requestMatchers("/api/v1/booking/get-user-booking/{user_id}").permitAll()
+                                .requestMatchers("/api/v1/booking/edit-bookings/{booking_id}").permitAll()
                                 .requestMatchers("/api/v1/vehicle/register-vehicle").permitAll()
                                 .requestMatchers("/api/v1/vehicle/get-vehicle-details/{userId}").permitAll()
                                 .requestMatchers("/api/v1/vehicle/edit-vehicle-details/{vehicle_id}").permitAll()

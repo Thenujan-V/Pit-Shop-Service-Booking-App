@@ -68,7 +68,6 @@ public class TokenProvider {
 
     // Retrieve authentication from token
     public UsernamePasswordAuthenticationToken getAuthenticationToken(final String token, final UserDetails userDetails) {
-//        log.info("getAuthenticationToken");
 
         String role = getRoleFromToken(token); // Extract role from token
         return new UsernamePasswordAuthenticationToken(userDetails, "",

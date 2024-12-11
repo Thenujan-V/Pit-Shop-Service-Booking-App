@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -34,8 +35,8 @@ public class VehicleEntity {
     private Boolean vehicleIsActive = true;
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private Date created_at;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
     @CreationTimestamp
-    private Date updated_at;
+    private LocalDateTime updatedAt;
 }
