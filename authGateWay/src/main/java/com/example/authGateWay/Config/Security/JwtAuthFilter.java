@@ -4,6 +4,7 @@ package com.example.authGateWay.Config.Security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,66 +36,59 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private ApplicationConfigProperties applicationProperties;
 
     @Autowired
+    @Resource(name = "jwtUserDetailsService")
+    private UserDetailsService userDetailsService;
+
+    @Autowired
     private TokenProvider jwtTokenUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException, ServletException {
+        logger.info("doFilterInternal");
         String header = req.getHeader(applicationProperties.getJwt().getHeaderString());
         String username = null;
         String authToken = null;
-
-        System.out.println("request : "+req.getRequestURI());
-
+        System.out.println("header : "+header);
         if (header != null && header.startsWith(applicationProperties.getJwt().getTokenPrefix())) {
             authToken = header.replace(applicationProperties.getJwt().getTokenPrefix() + " ", "");
 
             try {
-                if(jwtTokenUtil.validateToken(authToken)){
-                    username = jwtTokenUtil.getUsernameFromToken(authToken);
-                    String role = jwtTokenUtil.getRoleFromToken(authToken);
-
-                    System.out.println("role and username :"+username+ " " +role);
-                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
-                    System.out.println("authorities :"+authorities);
-
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(null, null, authorities);
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    System.out.println("authentication : "+SecurityContextHolder.getContext().getAuthentication());
-                }
+                username = jwtTokenUtil.getUsernameFromToken(authToken);
+                System.out.println("user : "+username);
             } catch (IllegalArgumentException e) {
-                System.out.println("IllegalArgumentException");
+//                logger.error("Error occurred while retrieving Username from Token", e);
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.username.cannot.retrieve");
                 return;
             } catch (ExpiredJwtException e) {
-                System.out.println("ExpiredJwtException");
+//                logger.warn("The token has expired");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.token.expired");
                 return;
             } catch (SignatureException e) {
-                System.out.println("SignatureException");
+//                logger.error("Authentication Failed. Invalid username or password.");
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "auth.signature.invalid");
                 return;
             } catch (Exception e) {
-                System.out.println("Exception");
+//                logger.error("Unknown exception ", e);
                 sendErrorResponse(res, HttpStatus.UNAUTHORIZED, e.getMessage());
                 return;
             }
         } else {
-            sendErrorResponse(res, HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header.");
-            return;
+//            logger.warn("Bearer string not found, ignoring the header");
         }
+        System.out.println("security : "+SecurityContextHolder.getContext().getAuthentication());
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+//            logger.warn(userDetails.toString());
+            System.out.println("user details : "+ userDetails.toString());
+            if (jwtTokenUtil.validateToken(authToken, userDetails)) {
 
-//        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-//            if (jwtTokenUtil.validateToken(authToken, userDetails)) {
-//
-//                UsernamePasswordAuthenticationToken authentication = jwtTokenUtil.getAuthenticationToken(authToken, userDetails);
-//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//            }
-//        }
+                UsernamePasswordAuthenticationToken authentication = jwtTokenUtil.getAuthenticationToken(authToken, userDetails);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+//                logger.info("User authenticated: " + authentication.getName() + ", setting security context");
+                System.out.println("User authenticated: " + authentication.getName() + ", setting security context");
+            }
+        }
 
         chain.doFilter(req, res);
     }
@@ -106,3 +103,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 }
+
