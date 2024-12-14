@@ -24,25 +24,32 @@ public class TimeSlotController {
     @Autowired
     private TimeSlotService timeSlotService;
     @PostMapping("/create-time-slots")
-    private ResponseEntity<?> createTimeSlots(@Valid @RequestBody TimeSlotDto timeSlotDto){
+    private ResponseEntity<TimeSlotEntity> createTimeSlots(@Valid @RequestBody TimeSlotDto timeSlotDto){
         TimeSlotEntity savedTimeSlots = timeSlotService.timeSlotsCreated(timeSlotDto);
-        return new ResponseEntity<>(savedTimeSlots, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTimeSlots);
     }
 
     @GetMapping("/get-time-slots")
-    private ResponseEntity<?> getTimeSlots(){
-        ResponseEntity<?> extractTimeSlots = timeSlotService.getSlots();
-        return extractTimeSlots;
+    private ResponseEntity<List<TimeSlotEntity>> getTimeSlots(){
+//        System.out.println("okey");
+        List<TimeSlotEntity> extractTimeSlots = timeSlotService.getSlots();
+        return ResponseEntity.ok(extractTimeSlots);
     }
     @PutMapping("/edit-time-slots/{slotId}")
     private ResponseEntity<TimeSlotEntity> editTimeSlots(@PathVariable Integer slotId, @RequestBody TimeSlotUpdateDto timeSlotUpdateDto){
         ResponseEntity<TimeSlotEntity> updateTimeSlots = timeSlotService.timeSlotsupdated(slotId, timeSlotUpdateDto);
-        return updateTimeSlots;
+        return ResponseEntity.ok(updateTimeSlots.getBody());
     }
 
     @DeleteMapping("/delete-time-slots")
-    private ResponseEntity<?> deleteTimeSlots(@RequestBody SlotIdsRequestDto slotIdsRequestDto){
-        ResponseEntity<?> deleteTimeSlots = timeSlotService.timeSlotsDelete(slotIdsRequestDto.getSlotIds());
-        return deleteTimeSlots;
+    private ResponseEntity<String> deleteTimeSlots(@RequestBody SlotIdsRequestDto slotIdsRequestDto){
+        timeSlotService.timeSlotsDelete(slotIdsRequestDto.getSlotIds());
+        return ResponseEntity.ok("Time slots deleted successfully");
+    }
+
+    @PutMapping("/edit-vehicle-count/{slotId}")
+    private ResponseEntity<TimeSlotEntity> editVehicleCount(@PathVariable Integer slotId){
+        ResponseEntity<TimeSlotEntity> updateVehicleCount = timeSlotService.vehicleCountUpdated(slotId);
+        return ResponseEntity.ok(updateVehicleCount.getBody());
     }
 }

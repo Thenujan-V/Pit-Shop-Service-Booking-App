@@ -14,5 +14,7 @@ public interface TimeSlotService {
 
     ResponseEntity<?> timeSlotsDelete(List<Integer> slotIds);
 
-    ResponseEntity<List<TimeSlotEntity>> getSlots();
+    List<TimeSlotEntity> getSlots();
+
+    ResponseEntity<TimeSlotEntity> vehicleCountUpdated(Integer slotId);
 }

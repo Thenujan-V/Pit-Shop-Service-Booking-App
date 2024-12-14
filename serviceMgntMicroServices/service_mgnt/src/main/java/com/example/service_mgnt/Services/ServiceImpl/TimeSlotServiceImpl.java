@@ -4,15 +4,19 @@ import com.example.service_mgnt.Dto.TimeSlotDto;
 import com.example.service_mgnt.Dto.TimeSlotUpdateDto;
 import com.example.service_mgnt.Entity.TimeSlotEntity;
 import com.example.service_mgnt.Exception.DatabaseException;
+import com.example.service_mgnt.Exception.NoContentException;
 import com.example.service_mgnt.Repository.TimeSlotRepository;
 import com.example.service_mgnt.Services.Service.TimeSlotService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -103,15 +107,38 @@ public class TimeSlotServiceImpl implements TimeSlotService {
     }
 
     @Override
-    public ResponseEntity<List<TimeSlotEntity>> getSlots() {
+    public List<TimeSlotEntity> getSlots() {
         try{
             List<TimeSlotEntity> timeSlots = timeSlotRepository.findAll();
             if(timeSlots.isEmpty()){
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+                throw new NoContentException("No time slots available.");
             }
-            return ResponseEntity.ok(timeSlots);
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            return timeSlots;
+        }catch(DataAccessException e){
+            throw new DatabaseException("Failed to fetch time slots due to a database error.", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<TimeSlotEntity> vehicleCountUpdated(Integer slotId) {
+        try{
+            Optional<TimeSlotEntity> existingUser = timeSlotRepository.findById(slotId);
+            if(existingUser.isPresent()){
+                TimeSlotEntity timeSlotEntity = existingUser.get();
+                if(timeSlotEntity.getMaximumNumberOfVehicles() != timeSlotEntity.getVehiclesCount()){
+                    timeSlotEntity.setVehiclesCount(timeSlotEntity.getVehiclesCount() + 1);
+                    timeSlotRepository.save(timeSlotEntity);
+                    return ResponseEntity.ok(timeSlotEntity);
+                }
+                else{
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+                }
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        }catch(DataIntegrityViolationException e){
+            throw new DatabaseException("Failed to save the time slot due to a database constraint.");
         }
     }
 }
