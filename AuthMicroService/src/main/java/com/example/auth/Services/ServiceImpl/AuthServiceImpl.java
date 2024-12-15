@@ -38,13 +38,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SigninResponse authSignin(SigninDto signinDto) {
         try{
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signinDto.getUser_email(), signinDto.getPassword());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signinDto.getUserName(), signinDto.getPassword());
 
-//            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-            UserEntity userEntity = userRepository.findByUserEmail(signinDto.getUser_email());
+            UserEntity userEntity = userRepository.findByUserName(signinDto.getUserName());
             if (userEntity == null) {
-                throw new UsernameNotFoundException("User with email " + signinDto.getUser_email() + " not found");
+                throw new UsernameNotFoundException("User with email " + signinDto.getUserName() + " not found");
             }
 
             final String token = tokenProvider.generateToken(userEntity);

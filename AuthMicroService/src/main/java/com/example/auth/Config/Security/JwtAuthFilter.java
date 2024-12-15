@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String header = req.getHeader(applicationProperties.getJwt().getHeaderString());
         String username = null;
         String authToken = null;
-
+        System.out.println("un  : "+username);
         if (header != null && header.startsWith(applicationProperties.getJwt().getTokenPrefix())) {
             authToken = header.replace(applicationProperties.getJwt().getTokenPrefix() + " ", "");
 
@@ -70,9 +70,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } else {
 //            logger.warn("Bearer string not found, ignoring the header");
+            System.out.println("user null");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("user : "+username);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 //            logger.warn(userDetails.toString());
             if (jwtTokenUtil.validateToken(authToken, userDetails)) {

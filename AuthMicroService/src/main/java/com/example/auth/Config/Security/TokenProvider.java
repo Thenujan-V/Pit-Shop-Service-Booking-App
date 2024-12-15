@@ -72,7 +72,7 @@ public class TokenProvider implements Serializable {
                 .claim("role", user.getRole())
                 .claim("user_id", user.getUser_id())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (applicationProperties.getJwt().getAccessTokenExpiration() * 1000 * 12)))
+                .setExpiration(new Date(System.currentTimeMillis() + (applicationProperties.getJwt().getAccessTokenExpiration() * 1000 * 12 * 24)))
 
                 .signWith(getSigningKey())
                 .compact();
