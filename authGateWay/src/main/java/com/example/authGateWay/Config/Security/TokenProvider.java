@@ -3,7 +3,6 @@ package com.example.authGateWay.Config.Security;
 
 
 import com.example.authGateWay.Config.Security.ApplicationConfigProperties;
-import com.example.authGateWay.Entity.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -25,8 +24,8 @@ import java.util.function.Function;
 @AllArgsConstructor
 @Slf4j
 public class TokenProvider implements Serializable {
-
-    private final ApplicationConfigProperties applicationProperties;
+    @Autowired
+    private ApplicationConfigProperties applicationProperties;
 
     // Extract username from the token
     public String getUsernameFromToken(String token) {
@@ -67,17 +66,17 @@ public class TokenProvider implements Serializable {
     }
 
     // Generate token for a user with a role
-    public String generateToken(UserEntity user) {
-        return Jwts.builder()
-                .setSubject(user.getUserEmail())
-                .claim("role", user.getRole())
-                .claim("user_id", user.getUser_id())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (applicationProperties.getJwt().getAccessTokenExpiration() * 1000 * 12 * 24)))
-
-                .signWith(getSigningKey())
-                .compact();
-    }
+//    public String generateToken(UserEntity user) {
+//        return Jwts.builder()
+//                .setSubject(user.getUserName())
+//                .claim("role", user.getRole())
+//                .claim("user_id", user.getUser_id())
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + (applicationProperties.getJwt().getAccessTokenExpiration() * 1000 * 12 * 24)))
+//
+//                .signWith(getSigningKey())
+//                .compact();
+//    }
 
     // Generate refresh token
 //    public String generateRefreshToken(UserEntity user) {
@@ -86,15 +85,13 @@ public class TokenProvider implements Serializable {
 
     // Validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
-        log.info("ok");
+        System.out.println(token+ userDetails);
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     // Retrieve authentication from token
     public UsernamePasswordAuthenticationToken getAuthenticationToken(final String token, final UserDetails userDetails) {
-//        log.info("getAuthenticationToken");
-
         String role = getRoleFromToken(token); // Extract role from token
         return new UsernamePasswordAuthenticationToken(userDetails, "",
                 List.of(new SimpleGrantedAuthority(role))); // Use role directly

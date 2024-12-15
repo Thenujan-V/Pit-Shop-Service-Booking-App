@@ -1,6 +1,7 @@
 server:
   port: 9093
 
+
 spring:
   application:
     name: authGateWay
@@ -8,14 +9,9 @@ spring:
     gateway:
       routes:
         # Booking Service APIs
-        - id: booking
-          uri: lb://booking
+        - id: BOOKING
+          uri: lb://BOOKING
           predicates:
-            - Path=api/v1/booking/**
-          filters:
-            - RemoveRequestHeader=Authorization
+            - Path=/api/v1/booking/**
+          filters: []
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8899/eureka/

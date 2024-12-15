@@ -11,7 +11,9 @@ public class PasswordEncoder {
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
-    public String encodePassword(String rawPassword) {
-        return encoder().encode(rawPassword);
-    }
+
+//    @Bean
+//    public String encodePassword(String rawPassword) {
+//        return encoder().encode(rawPassword);
+//    }
 }
