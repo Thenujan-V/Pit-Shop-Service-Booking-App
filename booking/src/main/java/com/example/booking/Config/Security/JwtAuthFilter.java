@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException, ServletException {
-        logger.info("doFilterInternal");
+        System.out.println("test test");
         String header = req.getHeader(applicationProperties.getJwt().getHeaderString());
         String username = null;
         String authToken = null;
@@ -42,6 +42,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             authToken = header.replace(applicationProperties.getJwt().getTokenPrefix() + " ", "");
 
             try {
+                System.out.println("test test 3");
+
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
             } catch (IllegalArgumentException e) {
                 logger.error("Error occurred while retrieving Username from Token", e);

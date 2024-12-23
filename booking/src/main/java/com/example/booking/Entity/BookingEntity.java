@@ -24,6 +24,8 @@ public class BookingEntity {
     private String vehicleId;
     @Column(name = "time_slot_id", nullable = false)
     private Integer timeSlotId;
+    @Column(name = "service_id", nullable = false)
+    private Integer serviceId;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;

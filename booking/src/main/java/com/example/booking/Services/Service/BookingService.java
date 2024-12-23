@@ -3,12 +3,13 @@ package com.example.booking.Services.Service;
 import com.example.booking.Dto.BookingDetailsEditDto;
 import com.example.booking.Dto.BookingDto;
 import com.example.booking.Entity.BookingEntity;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface BookingService {
-    BookingEntity bookingCreate(Integer userId, BookingDto bookingDto);
+    ResponseEntity<?> bookingCreate(Integer userId, BookingDto bookingDto);
 
     List<BookingEntity> allBookings();
 

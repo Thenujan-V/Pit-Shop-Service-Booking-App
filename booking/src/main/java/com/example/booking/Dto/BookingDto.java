@@ -19,4 +19,7 @@ public class BookingDto {
     private Integer timeSlotId;
     @NotNull(message = "status is required")
     private Status status;
+
+    @NotNull(message = "service id date is required")
+    private Integer serviceId;
 }

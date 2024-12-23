@@ -1,0 +1,20 @@
+server:
+  port: 7777
+
+spring:
+  application:
+    name: BOOKING
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+#
+#grpc:
+#  client:
+#    booking-service:
+#      address: "static://localhost:8091"
+#      enableKeepAlive: true

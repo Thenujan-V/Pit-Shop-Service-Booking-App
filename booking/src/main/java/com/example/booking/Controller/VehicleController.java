@@ -1,6 +1,6 @@
 package com.example.booking.Controller;
 
-import com.example.booking.Config.Security.TokenProvider;
+//import com.example.booking.Config.Security.TokenProvider;
 import com.example.booking.Dto.Response.VehicleGetDto;
 import com.example.booking.Dto.VehicleDetailsEditDto;
 import com.example.booking.Dto.VehicleDto;
@@ -27,8 +27,8 @@ import java.util.List;
 public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
-    @Autowired
-    private TokenProvider tokenProvider;
+//    @Autowired
+//    private TokenProvider tokenProvider;
     private static final String TOKEN_PREFIX = "Bearer";
 
     @PostMapping("/register-vehicle")
@@ -40,7 +40,8 @@ public class VehicleController {
         String authToken = token.replace(TOKEN_PREFIX + " ", "");
 
         try{
-            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
+//            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
+            Integer userId = 7;
             if(userId != null){
                 VehicleEntity registedVehicle = vehicleService.registerdVehicle(userId, vehicleDto);
                 return ResponseEntity.ok(registedVehicle);
@@ -70,8 +71,8 @@ public class VehicleController {
         String authToken = token.replace(TOKEN_PREFIX + " ", "");
 
         try{
-            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
-
+//            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
+            Integer userId = 7;
             if(userId != null){
                 VehicleEntity updatedEntity = vehicleService.updateVehicleDetails(userId, vehicleId, vehicleDetailsEditDto);
                 return ResponseEntity.ok(updatedEntity);

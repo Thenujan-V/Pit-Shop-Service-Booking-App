@@ -4,7 +4,6 @@ import com.example.booking.Config.Security.TokenProvider;
 import com.example.booking.Dto.BookingDetailsEditDto;
 import com.example.booking.Dto.BookingDto;
 import com.example.booking.Entity.BookingEntity;
-import com.example.booking.Entity.VehicleEntity;
 import com.example.booking.Services.Service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,22 +34,20 @@ public class BookingController {
 
         String authToken = token.replace(TOKEN_PREFIX + " ", "");
 
-        try{
-            Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
-            if(userId != null){
-                BookingEntity createdBooking = bookingService.bookingCreate(userId, bookingDto);
-                return ResponseEntity.ok(createdBooking);
-            }
-            else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID could not be retrieved from the token");
-            }
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        Integer userId = Math.toIntExact(tokenProvider.getUserIdFromToken(authToken));
+
+        if(userId != null){
+            return bookingService.bookingCreate(userId, bookingDto);
         }
+        else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID could not be retrieved from the token");
+        }
+
     }
 
     @GetMapping("/get-all-booking-details")
     private ResponseEntity<?> getAllBookingDetails(){
+        System.out.println("okey 11");
         try{
             List<BookingEntity> bookingSlots = bookingService.allBookings();
             return ResponseEntity.ok(bookingSlots);
