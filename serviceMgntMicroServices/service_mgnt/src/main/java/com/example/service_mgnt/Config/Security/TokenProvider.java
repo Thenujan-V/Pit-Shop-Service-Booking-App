@@ -41,8 +41,9 @@ public class TokenProvider {
     // Parse token to extract claims
     private Claims extractAllClaims(String token) {
 
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

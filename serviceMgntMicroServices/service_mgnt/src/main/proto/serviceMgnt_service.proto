@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.example.service_mgnt";
+option java_outer_classname = "BookingserviceProto";
+
+service BookingService {
+  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+}
+
+message CheckAvailabilityRequest {
+  int32 service_id = 1;
+}
+
+message CheckAvailabilityResponse {
+  bool is_available = 1;
+}

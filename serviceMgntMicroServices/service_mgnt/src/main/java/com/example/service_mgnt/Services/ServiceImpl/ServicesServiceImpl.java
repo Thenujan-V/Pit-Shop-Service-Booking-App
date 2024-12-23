@@ -73,7 +73,7 @@ public class ServicesServiceImpl implements ServicesService {
 
         }catch (NoContentException e){
             throw e;
-            }catch (IllegalArgumentException e){
+        }catch (IllegalArgumentException e){
             throw e;
         }catch (Exception e){
             throw new DatabaseException("Internal server error");
