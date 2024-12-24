@@ -27,6 +27,9 @@ public class ServicesServiceImpl implements ServicesService {
     @Override
     public void servicesCreate(ServicesDto servicesDto) {
         try{
+            if(existingService(servicesDto.getServiceName())){
+                throw new IllegalArgumentException("Duplicate Data.");
+            }
             ServicesEntity servicesEntity = new ServicesEntity();
             servicesEntity.setServiceName(servicesDto.getServiceName());
             servicesEntity.setServicePrice(servicesDto.getServicePrice());
@@ -36,6 +39,10 @@ public class ServicesServiceImpl implements ServicesService {
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Failed to save the services due to a database constraint.",e);
         }
+    }
+
+    private boolean existingService(String serviceName) {
+        return servicesRepository.existsByServiceName(serviceName);
     }
 
     @Override
