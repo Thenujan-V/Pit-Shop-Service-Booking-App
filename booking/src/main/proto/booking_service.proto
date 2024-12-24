@@ -6,6 +6,8 @@ option java_outer_classname = "BookingserviceProto";
 
 service BookingService {
   rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+  rpc CheckSlotAvailability(CheckSlotAvailabilityRequest) returns (CheckSlotAvailabilityResponse);
+
 }
 
 message CheckAvailabilityRequest {
@@ -13,5 +15,13 @@ message CheckAvailabilityRequest {
 }
 
 message CheckAvailabilityResponse {
+  bool is_available = 1;
+}
+
+message CheckSlotAvailabilityRequest {
+  int32 slot_id = 1;
+}
+
+message CheckSlotAvailabilityResponse {
   bool is_available = 1;
 }

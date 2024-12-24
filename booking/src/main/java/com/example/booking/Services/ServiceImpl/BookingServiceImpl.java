@@ -4,6 +4,7 @@ import com.example.booking.Dto.BookingDetailsEditDto;
 import com.example.booking.Dto.BookingDto;
 import com.example.booking.Entity.BookingEntity;
 import com.example.booking.Enum.Status;
+import com.example.booking.Exception.BookingAlreadyExistsException;
 import com.example.booking.Exception.ConflictException;
 import com.example.booking.Exception.DatabaseException;
 import com.example.booking.Exception.NoContentException;
@@ -11,9 +12,11 @@ import com.example.booking.Repository.BookingRepository;
 import com.example.booking.Services.Service.BookingService;
 //import com.example.booking.Services.ServiceImpl.Grpc.ServiceClient;
 import com.example.booking.Services.ServiceImpl.Grpc.ServiceClient;
+import com.example.booking.Services.ServiceImpl.Grpc.TimeSlotClient;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,13 +32,15 @@ import java.util.Optional;
 @Service
 @Transactional
 @AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     @Autowired
     private BookingRepository bookingRepository;
-
     @Autowired
     private ServiceClient serviceClient;
+    @Autowired
+    private TimeSlotClient timeSlotClient;
     @Override
     public ResponseEntity<?> bookingCreate(Integer userId, BookingDto bookingDto) {
 //        userId = null;
@@ -43,26 +48,41 @@ public class BookingServiceImpl implements BookingService {
             log.info("user ID cannot be null.");
             throw new IllegalArgumentException("user ID cannot be null or empty.");
         }
+        if(alreadyBooking(bookingDto.getVehicleId())){
+            throw new BookingAlreadyExistsException(
+                    "The booking already exists for vehicle ID: " + bookingDto.getVehicleId() + " within the last three days."
+            );
+        }
 
         BookingEntity bookingEntity = new BookingEntity();
         try{
             bookingEntity.setUserId(userId);
             bookingEntity.setVehicleId(bookingDto.getVehicleId());
-            bookingEntity.setTimeSlotId(bookingDto.getTimeSlotId());
             bookingEntity.setStatus(bookingDto.getStatus());
 
             if(bookingEntity.getStatus() == null){
                 bookingEntity.setStatus(Status.PENDING);
             }
+
             if(bookingDto.getServiceId() != null){
                 log.info("service id : "+ bookingDto.getServiceId());
                 if(serviceClient.checkAvailability(bookingDto.getServiceId())){
-                    log.info("existing : "+ serviceClient.checkAvailability(bookingDto.getServiceId()));
                     bookingEntity.setServiceId(bookingDto.getServiceId());
                 }
                 else{
                     log.info("service ID not found.");
                     throw new com.example.booking.Exception.NoContentException("service ID not found.");
+                }
+            }
+
+            if(bookingDto.getTimeSlotId() != null){
+                log.info("slot id : "+ bookingDto.getTimeSlotId());
+                if(timeSlotClient.checkSlotAvailablity(bookingDto.getTimeSlotId())){
+                    bookingEntity.setTimeSlotId(bookingDto.getTimeSlotId());
+                }
+                else{
+                    log.info("slot ID not found.");
+                    throw new com.example.booking.Exception.NoContentException("slot ID not found.");
                 }
             }
 
@@ -78,6 +98,15 @@ public class BookingServiceImpl implements BookingService {
             throw new DatabaseException("Internal server error", e);
         }
 
+    }
+
+    private boolean alreadyBooking(String vehicleId) {
+        try{
+            LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
+            return bookingRepository.existingBooking(vehicleId, threeDaysAgo);
+        }catch(Exception e){
+            throw new DatabaseException("Internal server error", e);
+        }
     }
 
 

@@ -40,4 +40,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleGeneralException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred : "+e.getMessage());
     }
+
+    @ExceptionHandler(BookingAlreadyExistsException.class)
+    public ResponseEntity<?> handleBookingAlreadyExistsException(BookingAlreadyExistsException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
 }

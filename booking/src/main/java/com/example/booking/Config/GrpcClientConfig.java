@@ -2,6 +2,7 @@ package com.example.booking.Config;
 
 
 import com.example.booking.proto.BookingServiceGrpc;
+//import com.example.booking.proto.TimeSlotServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ public class GrpcClientConfig {
     public ManagedChannel managedChannel() {
         this.managedChannel = ManagedChannelBuilder
                 .forAddress(grpcHost, grpcPort)
-                .usePlaintext()  // Use plaintext (without TLS); you should enable TLS for production
+                .usePlaintext()
                 .build();
         return managedChannel;
     }
